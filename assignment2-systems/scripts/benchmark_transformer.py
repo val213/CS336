@@ -25,7 +25,8 @@ nsys CLI 在 WSL（Ubuntu）上的安装方法：
     sudo apt-get install -y nsight-systems-cli
 
     # 方法二：如果已安装完整 CUDA Toolkit（包含 nsys）
-    # nsys 通常位于 /usr/local/cuda/bin/nsys 或 /opt/nvidia/nsight-systems/*/bin/nsys
+    # nsys 通常位于 /usr/local/cuda/bin/nsys，
+    # 或通过 find /opt/nvidia -name nsys 2>/dev/null 查找实际路径。
     # 确保该路径已在 PATH 中：
     export PATH=/usr/local/cuda/bin:$PATH
 
@@ -206,6 +207,8 @@ def main():
     # ─── 可选：开启内存分析 ──────────────────────────────
     if args.memory_profile:
         print("开始记录 GPU 内存历史…")
+        # 注意：以下为 PyTorch 内部（实验性）API，作业说明中明确指定使用。
+        # 在不同 PyTorch 版本中接口可能变化，本脚本基于 torch~=2.6.0。
         torch.cuda.memory._record_memory_history(max_entries=1_000_000)
 
     # ─── 计时阶段 ───────────────────────────────────────
@@ -239,6 +242,7 @@ def main():
     if args.memory_profile:
         snapshot_path = args.memory_snapshot_path
         print(f"保存内存快照到 {snapshot_path} …")
+        # 以下为 PyTorch 内部（实验性）API，作业说明中明确指定使用（torch~=2.6.0）。
         torch.cuda.memory._dump_snapshot(snapshot_path)
         torch.cuda.memory._record_memory_history(enabled=None)
         print(f"内存快照已保存。可将其拖拽到 https://pytorch.org/memory_viz 进行可视化。")
